@@ -2,26 +2,61 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.5.
 
-## Development server
+Run `npm install` to setup the project.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Test Case Execution [ES2015]
 
-## Code scaffolding
+1. `npm run serve-es2015`
+2. `lighthouse --view http://localhost:4200/`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+The report will indicate the `main.js` file is unminified.
+`main.js` production on-disk file size: ~186 kB
+(unoptimized size: ~2.32 MB)
 
-## Build
+## Test Case Execution [ES5]
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+1. `npm run serve-es5`
+2. `lighthouse --view http://localhost:4200/`
 
-## Running unit tests
+The report will not contain an unminified JavaScript warning.
+`main.js` production on-disk file size: ~220 kB
+(unoptimized size: ~2.74 MB)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## ES2015 template string examples
 
-## Running end-to-end tests
+Nested template strings appear to generate false positives.
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+* `template-string-example/bad.js` -> ~36% waste reported
+* `template-string-example/good.js` -> ~3% waste reported
 
-## Further help
+Use `npm run template-example` for token counts.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+## ES2015 Angular main JavaScript file example
+
+* `angular-main-example/main-fa50afb.js` -> ~30% waste reported
+* `angular-main-example/main-05edef7.js` -> ~2% waste reported
+
+The only difference is captured in the following diff (formatted for readability):
+```diff
+                     ? [serializeSegment(segment.children.primary, !1)]
+                     : [`${k}:${serializeSegment(v, !1)}`]
+                 );
+-                return `${serializePaths(segment)}/(${children.join("//")})`;
++                return 1 === Object.keys(segment.children).length &&
++                  null != segment.children.primary
++                  ? `${serializePaths(segment)}/${children[0]}`
++                  : `${serializePaths(segment)}/(${children.join("//")})`;
+               }
+             })(tree.root, !0)
+           }${(function (params) {
+```
+The addition of the above code appears to cause the audit to report the file as minified.
+
+Use `npm run angular-example` for token counts.
+
+## Waste estimator utility
+
+Uses the minification-estimator within the `lighthouse` package to estimate a waste percentage.
+
+Usage:
+`node waste.js <file>`

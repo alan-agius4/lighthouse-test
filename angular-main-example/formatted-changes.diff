@@ -1,0 +1,14 @@
+--- dist/es2015/main.js
++++ dist-05edef78e4da808890d7fea29c1daae40e8ea1ce/es2015/main.js
+@@ -10503,7 +10503,10 @@
+                     ? [serializeSegment(segment.children.primary, !1)]
+                     : [`${k}:${serializeSegment(v, !1)}`]
+                 );
+-                return `${serializePaths(segment)}/(${children.join("//")})`;
++                return 1 === Object.keys(segment.children).length &&
++                  null != segment.children.primary
++                  ? `${serializePaths(segment)}/${children[0]}`
++                  : `${serializePaths(segment)}/(${children.join("//")})`;
+               }
+             })(tree.root, !0)
+           }${(function (params) {
